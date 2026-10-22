@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+  namespace: voting-app
+  labels:
+    app: result
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: result
+  template:
+    metadata:
+      labels:
+        app: result
+    spec:
+      containers:
+        - name: result
+          image: dockersamples/examplevotingapp_result
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: result
+  namespace: voting-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: result
+  ports:
+    - port: 80
+      targetPort: 80
